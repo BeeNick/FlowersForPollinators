@@ -23,3 +23,9 @@ Seems quite difficoult to find an open dataset of plant phenological data with a
 Exist the PEP725 project (http://www.pep725.eu/) but the access is subordinate to the registration and single autentication for the results of each query.
 
 For the moment we will limit the area of phenological data at USA using the USA Nathional Phenology Network https://usanpn.org/data/overview wich seems to allow an easy exploration through web API
+
+
+
+## NOTES and TO DO
+### TO DO
+We should remember to chekc the nomenclature used for the plants, we can follow the suggestions of Plant Phenology Ontology https://obofoundry.org/ontology/ppo 
