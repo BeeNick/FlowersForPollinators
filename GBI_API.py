@@ -8,33 +8,73 @@ Repo https://github.com/globalbioticinteractions/globalbioticinteractions.git
 
 """
 
-import requests
-import pandas
+from API_utils import *
 
-def download_GBI_interactions_data(source_taxa, interaction_type, format_type = 'csv', \
-                              timeout = 5, **kwargs):
+
+class GBIInteraction:
     """
-    Download data fron Global Biotic Interactions database
-    :param source_taxa: the taxa we are intereste in
-    :param interaction_type: the type of interaction of the taxa we are searching for
-    :param format_type: the type of the resutls format, available are: csv, tsv, json, json.v2, dot
-    :param timeout: timeout for the API call
-    :param kwargs: dictionary of others parameters for the API call (as example offset)
-    :return: returs a list of status and content of the API request
+    Class for Global Biotic Interactions APIs
     """
 
-    # Set base endpoint for GBI data
-    root_endpoint = "https://api.globalbioticinteractions.org/interaction"
-    # Set basic parameters
-    parameters = {'sourceTaxon' : source_taxa, \
-                  'interactionType' : interaction_type, \
-                  'type' : format_type}
-    # Merge the basic parameters with the others eventual parameters
-    parameters = {**parameters, **kwargs}
+    def __init__(self):
+        self.root_endpoint = "https://api.globalbioticinteractions.org/interaction"
 
-    search_by_interaction_request = requests.get(root_endpoint, \
-                                    params = parameters, timeout = timeout)
+    def request_data(self, source_taxa: str, interaction_type: str, format_type: str = 'csv',
+                                      timeout: int = 5, **kwargs: object) -> list:
+        """
+        Request data from Global Biotic Interactions database
+        :param source_taxa: the taxa we are intereste in
+        :param interaction_type: the type of interaction of the taxa we are searching for
+        :param format_type: the type of the resutls format, available are: csv, tsv, json, json.v2, dot
+        :param timeout: timeout for the API call
+        :param kwargs: dictionary of others parameters for the API call (as example offset)
+        :return: return a list of status and content of the API request
+        """
 
-    return([search_by_interaction_request.status_code, search_by_interaction_request.content])
+        parameters = {'sourceTaxon': source_taxa,
+                      'interactionType': interaction_type,
+                      'type': format_type}
+
+        # Merge the basic parameters with the others eventual parameters
+        parameters = {**parameters, **kwargs}
+
+        search_by_interaction_request_list = web_request_get_data(root_endpoint,
+                                                                  parameters,
+                                                                  timeout)
+
+        return search_by_interaction_request_list
+
+    def get_bin_data(self, source_taxa: str, interaction_type: str, format_type: str = 'csv',
+                     timeout: int = 5, force_download: bool = False, **kwargs: object) -> bytes:
+        """
+        Retrive binary data from Global Biotic Interactions database
+        :param source_taxa: the taxa we are intereste in
+        :param interaction_type: the type of interaction of the taxa we are searching for
+        :param format_type: the type of the resutls format, available are: csv, tsv, json, json.v2, dot
+        :param timeout: timeout for the API call
+        :param force_download: by default the function search for the latest downloaded data, this parameter allow
+                to force a new download of the data
+        :param kwargs: dictionary of others parameters for the API call (as example offset)
+        :return: a binary file with the requested information from GBI
+        """
+
+        default_file_name = f"{interaction_type}_{source_taxa}_{format_type}.bin"
+
+        parameters = {'sourceTaxon': source_taxa,
+                      'interactionType': interaction_type,
+                      'type': format_type}
+
+        # Merge the basic parameters with the others eventual parameters
+        parameters = {**parameters, **kwargs}
+
+        return_file = get_external_db_data(default_file_name, self.root_endpoint, parameters,
+                                           timeout, force_download)
+
+        return return_file
+
+
+
+
+
 
 

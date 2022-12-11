@@ -13,7 +13,6 @@ NASA Repo https://git.earthdata.nasa.gov/projects/APIS
 
 """
 
-import requests
 from USA_NPN_API import *
 
 species_request = requests.get("http://www.usanpn.org/npn_portal/species/getSpecies.json")

@@ -11,29 +11,37 @@ import requests
 from GBI_API import *
 
 ###Search by intercation type
-#Set base endpoint
+# Set base endpoint
 root_endpoint = "https://api.globalbioticinteractions.org/interaction"
-#Set a taxa of interest
+# Set a taxa of interest
 source_taxa = "Gossypium herbaceum herbaceum"
-#Set an interaction of interest
+# Set an interaction of interest
 interaction = "ecologicallyRelatedTo"
-#Set format type, allowed: csv, tsv, json, json.v2, dot
+# Set format type, allowed: csv, tsv, json, json.v2, dot
 format_type = 'csv'
-#Make the API call
+# Set default file name
+default_file_name = f"{interaction}_{source_taxa}_{format_type}.bin"
+# Make the API call
 search_by_interaction_request = requests.get(root_endpoint,
-        params = {'sourceTaxon' : source_taxa,
-                  'interactionType' : interaction,
-                  'type' : format_type})
+                                             params={'sourceTaxon': source_taxa,
+                                                     'interactionType': interaction,
+                                                     'type': format_type})
 
-print( search_by_interaction_request.status_code )
+print(search_by_interaction_request.status_code)
 
 open('test_search_by_interaction_request.csv', 'wb').write(search_by_interaction_request.content)
 
-search_by_interaction_list = download_GBI_interactions_data(source_taxa,
-                                                            interaction,
-                                                            format_type)
-#Status
-print(search_by_interaction_list[0])
+gbi_interaction = GBIInteraction()
 
-#Check
-print('results match? ' , search_by_interaction_list[1] == search_by_interaction_request.content )
+search_by_interaction_file = gbi_interaction.get_bin_data(source_taxa,
+                                                          interaction,
+                                                          format_type,
+                                                          force_download=False)
+
+# Check
+print(f"New request results match? {search_by_interaction_file == search_by_interaction_request.content}")
+
+with open(default_file_name, 'rb') as saved_request_file:
+    return_file = saved_request_file.read()
+
+    print(f"Read file results match? {search_by_interaction_file == return_file}")
