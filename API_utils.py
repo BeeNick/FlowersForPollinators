@@ -36,7 +36,7 @@ def save_bin_data(binary_data: bytes, file_name: str):
     return
 
 def get_external_db_data(file_name:str, endpoint_url: str, parameters: dict,
-                             timeout: int =5, force_download: bool=False) -> bytes:
+                             timeout: int =5, force_download: bool=False, save: bool=True) -> bytes:
         """
         Retrive data from external database, by default search the file, if not present make a new request and save it
         :param file_name: name of the saved or to save file
@@ -45,10 +45,11 @@ def get_external_db_data(file_name:str, endpoint_url: str, parameters: dict,
         :param timeout: timeout for the API call
         :param force_download: by default the function search for the latest downloaded data, this parameter allow
                 to force a new download of the data
-        :return: a binary file with the requested information from the external db
+        :param save: save the possibly downloaded data in a file
+        :return: a binary with the requested information from the external db
         """
 
-        return_file = b''
+        return_binary = b''
 
         # By default the function make a new web request only if the default file do not exist
 
@@ -58,11 +59,12 @@ def get_external_db_data(file_name:str, endpoint_url: str, parameters: dict,
                                                     timeout)
             if web_request_list[0] == 200:
                 request_data = web_request_list[1]
-                save_bin_data(request_data, file_name)
+                if save:
+                    save_bin_data(request_data, file_name)
 
         try:
             with open(file_name, 'rb') as saved_request_file:
-                return_file = saved_request_file.read()
+                return_binary = saved_request_file.read()
         except:
             web_request_list = web_request_get_data(endpoint_url,
                                                     parameters,
@@ -70,12 +72,15 @@ def get_external_db_data(file_name:str, endpoint_url: str, parameters: dict,
 
             if web_request_list[0] == 200:
                 request_data = web_request_list[1]
-                save_bin_data(request_data, file_name)
+                if save:
+                    save_bin_data(request_data, file_name)
+                else:
+                    return request_data
             else:
-                return return_file
+                return return_binary
         finally:
             with open(file_name, 'rb') as saved_request_file:
-                return_file = saved_request_file.read()
+                return_binary = saved_request_file.read()
 
-        return return_file
+        return return_binary
 

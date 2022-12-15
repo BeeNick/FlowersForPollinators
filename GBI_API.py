@@ -45,7 +45,7 @@ class GBIInteraction:
         return search_by_interaction_request_list
 
     def get_bin_data(self, source_taxa: str, interaction_type: str, format_type: str = 'csv',
-                     timeout: int = 5, force_download: bool = False, **kwargs: object) -> bytes:
+                     timeout: int = 5, force_download: bool = False, save: bool=True, **kwargs: object) -> bytes:
         """
         Retrive binary data from Global Biotic Interactions database
         :param source_taxa: the taxa we are intereste in
@@ -54,6 +54,7 @@ class GBIInteraction:
         :param timeout: timeout for the API call
         :param force_download: by default the function search for the latest downloaded data, this parameter allow
                 to force a new download of the data
+        :param save: save the possibly downloaded data in a file
         :param kwargs: dictionary of others parameters for the API call (as example offset)
         :return: a binary file with the requested information from GBI
         """
@@ -68,7 +69,7 @@ class GBIInteraction:
         parameters = {**parameters, **kwargs}
 
         return_file = get_external_db_data(default_file_name, self.root_endpoint, parameters,
-                                           timeout, force_download)
+                                           timeout, force_download, save)
 
         return return_file
 
