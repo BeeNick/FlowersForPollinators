@@ -14,32 +14,48 @@ NASA Repo https://git.earthdata.nasa.gov/projects/APIS
 
 """
 
-import requests
+from API_utils import *
 
-def request_USA_NPN_species( format_type = 'json', timeout = 5):
+class USANPNData:
     """
-       Request data fron USA National Phenology Network database
-       :param format_type: the type of the resutls format, available are: json, xml
-       :param timeout: timeout for the API call
-       :return: returs a list of status and content of the API request
+    Class for USA National Phenology Network database API
     """
 
-    root_endpoint = "http://www.usanpn.org/npn_portal/species/getSpecies"
+    def __init__(self):
+        self.species_root_endpoint = "http://www.usanpn.org/npn_portal/species/getSpecies"
 
-    species_request = requests.get(f"{root_endpoint}.{format_type}", timeout = timeout)
+    def request_species_data(self, format_type: str = 'json', timeout: int = 5) -> list:
+        """
+        Request species data from USA National Phenology Network database
+        :param format_type: the type of the resutls format, available are: json, xml
+        :param timeout: timeout for the API call
+        :return: returs a list of status and content of the API request
+        """
+        parameters = {}
 
-    return([species_request.status_code, species_request.content])
+        species_request_list = web_request_get_data(f"{species_root_endpoint}.{format_type}",
+                                                    parameters, timeout)
 
-def download_USA_NPN_species( format_type = 'json', timeout = 5):
-    """
-       Download data fron USA National Phenology Network database
-       :param format_type: the type of the resutls format, available are: json, xml
-       :param timeout: timeout for the API call
-       :return: returs a list of status and content of the API request
-    """
+        return species_request_list
 
-    root_endpoint = "http://www.usanpn.org/npn_portal/species/getSpecies"
+    def get_bin_species_data(self, format_type: str = 'json', timeout: int =5,
+                             force_download: bool = False, save: bool=True) -> bytes:
+        """
+        Download data fron USA National Phenology Network database
+        :param format_type: the type of the resutls format, available are: json, xml
+        :param timeout: timeout for the API call
+        :return: returs a list of status and content of the API request
+        """
 
-    species_request = requests.get(f"{root_endpoint}.{format_type}", timeout = timeout)
+        default_file_name = f"All_species_{format_type}.bin"
 
-    return([species_request.status_code, species_request.content])
+        parameters = {}
+
+        return_binary_data = get_external_db_data(default_file_name,
+                                                  f"{self.species_root_endpoint}.{format_type}",
+                                                  parameters, timeout,
+                                                  force_download, save)
+
+        return return_binary_data
+
+
